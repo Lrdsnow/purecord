@@ -248,19 +248,19 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                       Row(
                         children: [
                           IconButton(
-                            icon: Icon(Icons.message),
+                            icon: const Icon(Icons.message),
                             onPressed: () {
                               // Handle message action
                             },
                           ),
                           IconButton(
-                            icon: Icon(Icons.phone),
+                            icon: const Icon(Icons.phone),
                             onPressed: () {
                               // Handle voice call action
                             },
                           ),
                           IconButton(
-                            icon: Icon(Icons.video_call),
+                            icon: const Icon(Icons.video_call),
                             onPressed: () {
                               // Handle video call action
                             },

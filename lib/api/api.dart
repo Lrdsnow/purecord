@@ -362,7 +362,11 @@ class Api {
 
                     var guildIds = guildFolders.expand((folder) => folder.guildIds).toList();
                     var guildsDictionary = {for (var g in guilds) g.id: g};
-                    guilds = guildIds.map((id) => guildsDictionary[id]!).toList();
+                    guilds = guildIds
+                      .map((id) => guildsDictionary[id])
+                      .where((g) => g != null)
+                      .cast<Guild>()
+                      .toList();
 
                     if (d['read_state'] is List) {
                       var readStateJSON = d['read_state'] as List;

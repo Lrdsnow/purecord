@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:purecord/structs/purecord_structs.dart';
 import 'package:purecord/api/iconurls.dart';
 import 'package:purecord/api/apidata.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../chatview.dart';
 
 class DMRowWidget extends StatelessWidget {
@@ -25,17 +26,27 @@ class DMRowWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(25),
           child: channel.type == 1 ? (channel.recipients?.first.iconURL != null
               // DMs
-              ? Image.network(
-                  channel.recipients!.first.iconURL.toString(),
-                  fit: BoxFit.cover,
+              ? Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: CachedNetworkImageProvider(
+                          channel.recipients!.first.iconURL.toString()),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 )
               : const Icon(
                   Icons.person,
                   color: Colors.white,
               // Group DMs 
-                )): (channel.dmsIconURL != null ? Image.network(
-                  channel.dmsIconURL.toString(),
-                  fit: BoxFit.cover,
+                )): (channel.dmsIconURL != null ? Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: CachedNetworkImageProvider(
+                          channel.dmsIconURL.toString()),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 )
               : const Icon(
                   Icons.person,

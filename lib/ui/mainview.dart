@@ -1,6 +1,7 @@
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../api/api.dart';
 import '../api/apidata.dart';
 import '../api/iconurls.dart';
@@ -124,11 +125,20 @@ class _MainViewState extends State<MainView> {
                                     child: Container(
                                       width: 50,
                                       height: 50,
-                                      child: guild.iconURL != null
-                                          ? Image.network(
-                                              guild.iconURL.toString(),
-                                              fit: BoxFit.cover,
-                                            )
+                                      child: guild.iconURL != null //
+                                          ? Container(
+                                            height: 50,
+                                            width: 50,
+                                            decoration: BoxDecoration(
+                                              image: guild.iconURL != null
+                                                  ? DecorationImage(
+                                                      image: CachedNetworkImageProvider(
+                                                          guild.iconURL.toString()),
+                                                      fit: BoxFit.cover,
+                                                    )
+                                                  : null,
+                                            ),
+                                          )
                                           : Center(
                                               child: Text(
                                                 guild.name,
@@ -221,9 +231,14 @@ class _MainViewState extends State<MainView> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(25),
                               child: apiData.user?.iconURL != null
-                                  ? Image.network(
-                                      apiData.user!.iconURL.toString(),
-                                      fit: BoxFit.cover,
+                                  ? Container(
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: CachedNetworkImageProvider(
+                                              apiData.user!.iconURL.toString()),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
                                     )
                                   : const Icon(Icons.person),
                             ),
