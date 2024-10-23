@@ -96,7 +96,6 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                                 Container(color: Colors.transparent),
                           ),
                         ),
-                        // Online Status Indicator
                         Positioned(
                           bottom: 8,
                           right: 8,
@@ -126,7 +125,6 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                       ],
                     ),
                     const Spacer(),
-                    // Badges Section
                     if ((profile?.badges ?? []).isNotEmpty)
                       Container(
                       transform: Matrix4.translationValues(-16, 70, 0.0),
@@ -164,7 +162,6 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                   ],
                 ),
               ),
-              // User Details Section
               Container(transform: Matrix4.translationValues(0.0, -85.0, 0.0), child:
               Padding(
                 padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 16.0, right: 16.0),
@@ -271,6 +268,10 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                         ],
                       ),
                     ],
+                    Column(children: [
+                      const Text("About me", style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(profile?.userProfile.bio ?? "Unknown")
+                    ]),
                   ],
                 ),
               )
