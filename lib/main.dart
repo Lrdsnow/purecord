@@ -25,6 +25,8 @@ class NoThumbScrollBehavior extends ScrollBehavior {
 }
 
 class PureCord extends StatelessWidget {
+  const PureCord({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

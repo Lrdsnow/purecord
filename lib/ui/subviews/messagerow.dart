@@ -17,18 +17,18 @@ class MessageRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    void _showBottomSheet() {
+    void showProfileSheet(String userId) {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
         useSafeArea: false,
         builder: (BuildContext context) {
           double screenHeight = MediaQuery.of(context).size.height;
-          double modalHeight = screenHeight - 60;
+          double modalHeight = screenHeight - 80;
 
-          return Container(
+          return SizedBox(
             height: modalHeight,
-            child: ProfileView(userId: message.author.id),
+            child: ProfileView(userId: userId),
           );
         },
       );
@@ -39,9 +39,9 @@ class MessageRow extends StatelessWidget {
     dynamic row;
 
     if ({1, 2, 4, 5, 7, 8, 9, 10, 11}.contains(message.type)) {
-      row = MessageMemberRow(message: message, prevMessage: prevMessage, nextMessage: nextMessage);
+      row = MessageMemberRow(message: message, prevMessage: prevMessage, nextMessage: nextMessage, showProfileSheet: showProfileSheet);
     } else {
-      row = MessageNormalRow(message: message, prevMessage: prevMessage, nextMessage: nextMessage, newDay: newDay);
+      row = MessageNormalRow(message: message, prevMessage: prevMessage, nextMessage: nextMessage, newDay: newDay, showProfileSheet: showProfileSheet);
     }
 
     return Consumer<ApiData>(
@@ -79,7 +79,7 @@ class MessageRow extends StatelessWidget {
             )),
           GestureDetector(
             onLongPress: () {
-              _showBottomSheet();
+
             },
             child: row
           )
@@ -95,7 +95,9 @@ class MessageNormalRow extends StatelessWidget {
   final Message? nextMessage;
   final bool newDay;
 
-  const MessageNormalRow({required this.message, required this.prevMessage, required this.nextMessage, required this.newDay, super.key});
+  final Function(String userId) showProfileSheet;
+
+  const MessageNormalRow({required this.message, required this.prevMessage, required this.nextMessage, required this.newDay, required this.showProfileSheet, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +155,9 @@ class MessageNormalRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (!sameAuthorAsPrev)
-                Container(
+                GestureDetector(
+                  
+                child: Container(
                   width: 35,
                   height: 35,
                   decoration: BoxDecoration(
@@ -172,7 +176,7 @@ class MessageNormalRow extends StatelessWidget {
                             color: Colors.white,
                           )),
                   ),
-                ),
+                )),
               if (!sameAuthorAsPrev) const SizedBox(width: 10),
               Expanded(
                 child: Column(
@@ -215,7 +219,9 @@ class MessageMemberRow extends StatelessWidget {
   final Message? prevMessage;
   final Message? nextMessage;
 
-  const MessageMemberRow({required this.message, required this.prevMessage, required this.nextMessage, super.key});
+  final Function(String userId) showProfileSheet;
+
+  const MessageMemberRow({required this.message, required this.prevMessage, required this.nextMessage, required this.showProfileSheet, super.key});
 
   @override
   Widget build(BuildContext context) {

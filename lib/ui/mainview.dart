@@ -11,6 +11,8 @@ import 'subviews/channels.dart';
 
 
 class MainView extends StatefulWidget {
+  const MainView({super.key});
+
   @override
   _MainViewState createState() => _MainViewState();
 }
@@ -76,7 +78,7 @@ class _MainViewState extends State<MainView> {
                                     borderRadius: selectedGuild == null
                                         ? BorderRadius.circular(15)
                                         : BorderRadius.circular(25),
-                                    child: Container(
+                                    child: SizedBox(
                                       width: 50,
                                       height: 50,
                                       child: Center(
@@ -122,7 +124,7 @@ class _MainViewState extends State<MainView> {
                                     borderRadius: selectedGuild == guild
                                         ? BorderRadius.circular(15)
                                         : BorderRadius.circular(25),
-                                    child: Container(
+                                    child: SizedBox(
                                       width: 50,
                                       height: 50,
                                       child: guild.iconURL != null //
@@ -212,7 +214,7 @@ class _MainViewState extends State<MainView> {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: Container(
+                child: SizedBox(
                   height: 70,
                   child: Stack(
                     children: [

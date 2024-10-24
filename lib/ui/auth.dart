@@ -4,6 +4,8 @@ import '../api/api.dart';
 import 'mainview.dart';
 
 class AuthPage extends StatefulWidget {
+  const AuthPage({super.key});
+
   @override
   _AuthPageState createState() => _AuthPageState();
 }
@@ -36,6 +38,8 @@ class _AuthPageState extends State<AuthPage> {
 }
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   _LoginPageState createState() => _LoginPageState();
 }

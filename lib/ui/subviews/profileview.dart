@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:purecord/structs/presence.dart';
 import 'package:purecord/structs/profile.dart';
 import 'package:purecord/api/api.dart';
+import 'package:purecord/api/colors.dart';
 import 'package:purecord/api/apidata.dart';
 import 'package:purecord/api/iconurls.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -31,13 +32,24 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
   }
 
   void getProfile() async {
-    profile = await Api.getProfile(widget.userId);
+    Profile? loadedProfile = await Api.getProfile(widget.userId);
+    Color newColor = Colors.purple;
+    if (loadedProfile?.userProfile.accentColor != null) {
+      newColor = ColorExtension.fromHexInt(loadedProfile!.userProfile.accentColor!);
+    } else {
+      newColor = Theme.of(context).colorScheme.primaryContainer;
+    }
+    setState(() {
+      profile = loadedProfile;
+      accentColor = newColor;
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
     if (profile == null) {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
     return Consumer<ApiData>(
       builder: (context, apiData, child) { return Container(
@@ -56,7 +68,7 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                           fit: BoxFit.cover,
                         )
                       : null,
-                  color: accentColor,
+                  color: accentColor.withOpacity(1),
                   borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
                 ),
               ),
@@ -192,7 +204,7 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                       Row(
                         children: [
                           Container(
-                            padding: EdgeInsets.all(4),
+                            padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
                               color: accentColor.withOpacity(0.5),
                               borderRadius: BorderRadius.circular(10),
@@ -230,10 +242,10 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                               imageUrl: presence!.activities.firstWhere((activity) => activity.type == 4).emoji!.imageURL!.toString(),
                               width: 15,
                               height: 15,
-                              placeholder: (context, url) => CircularProgressIndicator(),
-                              errorWidget: (context, url, error) => Icon(Icons.error),
+                              placeholder: (context, url) => const CircularProgressIndicator(),
+                              errorWidget: (context, url, error) => const Icon(Icons.error),
                             ),
-                          SizedBox(width: 4),
+                          const SizedBox(width: 4),
                           Text(
                             presence!.activities.firstWhere((activity) => activity.type == 4).state ?? "",
                             style: TextStyle(
@@ -245,7 +257,7 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                       ),
                     ],
                     if (widget.userId != apiData.user?.id) ...[
-                      Divider(),
+                      const Divider(),
                       Row(
                         children: [
                           IconButton(
@@ -288,7 +300,10 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                                 alignment: Alignment.centerLeft,
                                 child: Text("About me", style: TextStyle(fontWeight: FontWeight.bold))
                               ),
-                              MarkdownBody(data: profile?.userProfile.bio ?? "Unknown")
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: MarkdownBody(data: profile?.userProfile.bio ?? "Unknown")
+                              )
                               ]
                             )
                           )
