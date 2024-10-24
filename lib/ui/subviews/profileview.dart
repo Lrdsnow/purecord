@@ -5,6 +5,7 @@ import 'package:purecord/api/api.dart';
 import 'package:purecord/api/apidata.dart';
 import 'package:purecord/api/iconurls.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
 
 class ProfileView extends StatefulWidget {
@@ -97,13 +98,13 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                           ),
                         ),
                         Positioned(
-                          bottom: 8,
-                          right: 8,
+                          bottom: 4,
+                          right: 4,
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
                               const CircleAvatar(
-                                radius: 14,
+                                radius: 15,
                                 backgroundColor: Colors.black,
                               ),
                               Container(
@@ -187,7 +188,7 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if ((profile?.mutualGuilds ?? []).isNotEmpty) ...[
+                    if ((profile?.mutualGuilds ?? []).map((g) => g.nick).where((nick) => nick != null && nick.isNotEmpty).isNotEmpty) ...[
                       Row(
                         children: [
                           Container(
@@ -268,10 +269,31 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                         ],
                       ),
                     ],
-                    Column(children: [
-                      const Text("About me", style: TextStyle(fontWeight: FontWeight.bold)),
-                      Text(profile?.userProfile.bio ?? "Unknown")
-                    ]),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                accentColor.withOpacity(0.5),
+                                accentColor.withOpacity(0.3),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Column(children: [
+                              const Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text("About me", style: TextStyle(fontWeight: FontWeight.bold))
+                              ),
+                              MarkdownBody(data: profile?.userProfile.bio ?? "Unknown")
+                              ]
+                            )
+                          )
+                      )
+                    )
                   ],
                 ),
               )

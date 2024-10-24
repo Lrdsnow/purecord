@@ -145,7 +145,7 @@ class _ChatViewState extends State<ChatView> with SingleTickerProviderStateMixin
                 padding: const EdgeInsets.only(bottom: 70.0),
                 child: ListView.builder(
                   controller: _scrollController,
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.only(top: 16.0, bottom: 16.0),
                   itemCount: apiData.currentMessages.length,
                   itemBuilder: (context, index) {
                     return MessageRow(

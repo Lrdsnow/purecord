@@ -20,6 +20,7 @@ class Message {
   final String timestamp; // ISO8601 timestamp
   final String? editedTimestamp; // ISO8601 timestamp
   final bool tts;
+  final bool mentioned;
   final bool mentionEveryone;
   final List<User> mentions;
   final List<String> mentionRoles; // array of role ids
@@ -57,6 +58,7 @@ class Message {
     required this.timestamp,
     this.editedTimestamp,
     required this.tts,
+    required this.mentioned,
     required this.mentionEveryone,
     required this.mentions,
     required this.mentionRoles,
@@ -96,6 +98,7 @@ class Message {
       timestamp: json['timestamp'],
       editedTimestamp: json['edited_timestamp'],
       tts: json['tts'],
+      mentioned: json['mentioned'] ?? false,
       mentionEveryone: json['mention_everyone'],
       mentions: List<User>.from(json['mentions'].map((x) => User.fromJson(x))),
       mentionRoles: List<String>.from(json['mention_roles']),

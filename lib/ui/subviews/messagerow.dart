@@ -23,7 +23,13 @@ class MessageRow extends StatelessWidget {
         isScrollControlled: true,
         useSafeArea: false,
         builder: (BuildContext context) {
-          return ProfileView(userId: message.author.id);
+          double screenHeight = MediaQuery.of(context).size.height;
+          double modalHeight = screenHeight - 60;
+
+          return Container(
+            height: modalHeight,
+            child: ProfileView(userId: message.author.id),
+          );
         },
       );
     }
@@ -38,40 +44,48 @@ class MessageRow extends StatelessWidget {
       row = MessageNormalRow(message: message, prevMessage: prevMessage, nextMessage: nextMessage, newDay: newDay);
     }
 
-    return Column(children: [
-      if (newDay)
-        Padding(padding: const EdgeInsets.only(bottom: 2, top: 8),
-        child: Row(
-          children: [
-            const Expanded(
-              child: Divider(
-                height: 15,
-                thickness: 1,
-                indent: 0,
-                endIndent: 10,
-              ),
-            ),
-            Text(
-              formatTimestamp(message.timestamp),
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const Expanded(
-              child: Divider(
-                height: 15,
-                thickness: 1,
-                indent: 10,
-                endIndent: 0,
-              ),
-            ),
-          ],
-        )),
-      GestureDetector(
-        onLongPress: () {
-          _showBottomSheet();
-        },
-        child: row
-      )
-    ]);
+    return Consumer<ApiData>(
+      builder: (context, apiData, child) {
+        return Container(
+        decoration: BoxDecoration(color: message.mentions.map((user) => user.id).toList().contains(apiData.user?.id ?? "") ? Theme.of(context).colorScheme.primaryContainer : Colors.black),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+          child: Column(children: [
+          if (newDay)
+            Padding(padding: const EdgeInsets.only(bottom: 2, top: 8),
+            child: Row(
+              children: [
+                const Expanded(
+                  child: Divider(
+                    height: 15,
+                    thickness: 1,
+                    indent: 0,
+                    endIndent: 10,
+                  ),
+                ),
+                Text(
+                  formatTimestamp(message.timestamp),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const Expanded(
+                  child: Divider(
+                    height: 15,
+                    thickness: 1,
+                    indent: 10,
+                    endIndent: 0,
+                  ),
+                ),
+              ],
+            )),
+          GestureDetector(
+            onLongPress: () {
+              _showBottomSheet();
+            },
+            child: row
+          )
+        ]))
+      );
+    });
   } 
 }
 
@@ -176,7 +190,9 @@ class MessageNormalRow extends StatelessWidget {
                           style: DefaultTextStyle.of(context).style.apply(fontSizeFactor: 0.7, color: Colors.grey),
                         )
                       ]),
-                    MarkdownBody(data: message.content),
+                    MarkdownBody(
+                      data: preprocessMarkdown(message.content),
+                    ),
                     if (!sameAuthorAsNext) const SizedBox(height: 8),
                   ],
                 ),
@@ -187,6 +203,10 @@ class MessageNormalRow extends StatelessWidget {
         );
       },
     );
+  }
+
+  String preprocessMarkdown(String markdown) {
+    return markdown.replaceAll(RegExp(r'^> ', multiLine: true), '\\> ');
   }
 }
 
