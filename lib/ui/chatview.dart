@@ -128,19 +128,6 @@ class _ChatViewState extends State<ChatView> with SingleTickerProviderStateMixin
           backgroundColor: Colors.transparent,
           body: Stack(
             children: [
-              Container(
-                decoration: const BoxDecoration(
-                  color: Colors.transparent,
-                ),
-                child: Positioned.fill(
-                  child: Blur(
-                    blur: 15.0,
-                    blurColor: Colors.black,
-                    colorOpacity: 0.5,
-                    child: Container(color: Colors.black),
-                  ),
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 70.0),
                 child: ListView.builder(

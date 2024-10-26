@@ -161,11 +161,6 @@ class _MainViewState extends State<MainView> {
                   Expanded(
                     child: Stack(
                       children: [
-                        Positioned.fill(
-                          child: Container(
-                            color: Colors.black.withOpacity(0.5),
-                          ),
-                        ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: (selectedGuild != null) ? [
