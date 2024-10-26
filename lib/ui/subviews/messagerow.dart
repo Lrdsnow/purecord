@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:purecord/structs/purecord_structs.dart';
@@ -41,7 +39,7 @@ class MessageRow extends StatelessWidget {
 
           return SizedBox(
             height: modalHeight,
-            child: ProfileView(userId: userId),
+            child: ProfileView(userId: userId, channel: channel, guild: guild),
           );
         },
       );
