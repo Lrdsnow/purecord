@@ -24,14 +24,14 @@ class _AuthPageState extends State<AuthPage> {
     if (token != null && token.isNotEmpty) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainView()),
+        MaterialPageRoute(builder: (context) => const MainView()),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: LoginPage(),
     );
   }
@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
       await Api.login(username, password);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainView()),
+        MaterialPageRoute(builder: (context) => const MainView()),
       );
     } catch (e) {
       setState(() {
@@ -126,7 +126,7 @@ class _TwoFactorAuthPageState extends State<TwoFactorAuthPage> {
       await Api.loginCode(code, widget.ticket, false);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainView()),
+        MaterialPageRoute(builder: (context) => const MainView()),
       );
     } catch (e) {
       setState(() {

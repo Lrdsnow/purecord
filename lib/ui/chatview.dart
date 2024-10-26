@@ -118,7 +118,7 @@ class _ChatViewState extends State<ChatView> with SingleTickerProviderStateMixin
                 SafeArea(child: Container(
                   alignment: Alignment.center,
                   child: Text(
-                    widget.channel.name ?? widget.channel.recipients?.first.getDisplayName(apiData) ?? "Unknown Channel",
+                    widget.channel.name ?? widget.channel.recipients?.first.getDisplayName(apiData, widget.guild) ?? "Unknown Channel",
                     style: const TextStyle(color: Colors.white, fontSize: 24),
                   ),
                 )),
@@ -152,6 +152,8 @@ class _ChatViewState extends State<ChatView> with SingleTickerProviderStateMixin
                       message: apiData.currentMessages[index],
                       prevMessage: apiData.currentMessages.getValueAtIndex(index - 1),
                       nextMessage: apiData.currentMessages.getValueAtIndex(index + 1),
+                      channel: widget.channel,
+                      guild: widget.guild,
                     );
                   },
                 ),

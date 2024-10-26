@@ -3,6 +3,7 @@
 // Created by Lrdsnow on 10/21/24.
 
 import '../api/apidata.dart';
+import 'guild.dart';
 
 class User {
   final String id;
@@ -101,8 +102,20 @@ class User {
     return relationship.nickname;
   }
 
-  String getDisplayName(ApiData apiData) {
-    return nickname(apiData) ?? globalName ?? username;
+  String? guildNickname(Guild guild) {
+    final guildMember = guild.members?.firstWhere(
+      (member) => member.user?.id == id,
+      orElse: () => GuildMember(roles: [], joinedAt: ""),
+    );
+    return guildMember?.nick;
+  }
+
+  String getDisplayName(ApiData apiData, Guild? guild) {
+    if (guild != null) {
+      return guildNickname(guild) ?? globalName ?? username;
+    } else {
+      return nickname(apiData) ?? globalName ?? username;
+    }
   }
 }
 

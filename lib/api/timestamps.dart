@@ -18,7 +18,7 @@ bool areTimestampsOnSameDay(String timestamp1, String timestamp2) {
 }
 
 String formatTimestampForMessages(String timestamp) {
-  DateTime dateTime = DateTime.parse(timestamp);
+  DateTime dateTime = DateTime.parse(timestamp).toLocal();
   DateTime now = DateTime.now();
 
   DateFormat dateFormat = DateFormat('MM/dd/yyyy');

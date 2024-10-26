@@ -377,7 +377,7 @@ class MessageReference {
 
 class MessageInteraction {
   final String id; // Interaction id
-  final String type; // Type of interaction
+  final int type; // Type of interaction
   final String name; // Name of interaction
   final String? userId; // User ID who triggered the interaction
 

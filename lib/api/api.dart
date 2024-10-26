@@ -14,7 +14,7 @@ import '../debug.dart';
 import 'apidata.dart';
 import '../structs/purecord_structs.dart';
 
-var os = Platform.isAndroid ? "Android" : "iOS";
+String os = Platform.operatingSystem;
 
 class Api {
   static const _storage = FlutterSecureStorage();
@@ -32,7 +32,7 @@ class Api {
       "client_build_number": 59675,
       "os": os,
       "client_version": "230.0",
-      "browser": "PureCord iOS",
+      "browser": "PureCord $os",
       "client_event_source": null,
       "browser_user_agent": "",
       "os_version": "16.0",

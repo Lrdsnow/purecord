@@ -9,7 +9,7 @@ void main() {
   runApp(
     ChangeNotifierProvider(
       create: (context) => ApiData(),
-      child: PureCord(),
+      child: const PureCord(),
     ),
   );
 }
@@ -40,7 +40,7 @@ class PureCord extends StatelessWidget {
         scaffoldBackgroundColor: Colors.black,
         bottomSheetTheme: const BottomSheetThemeData(backgroundColor: Colors.black),
       ),
-      home: Scaffold(
+      home: const Scaffold(
         body: SafeArea(
           child: AuthPage(),
         ),

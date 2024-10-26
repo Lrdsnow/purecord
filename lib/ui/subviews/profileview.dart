@@ -8,11 +8,17 @@ import 'package:purecord/api/iconurls.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
+import 'package:purecord/structs/channel.dart';
+import 'package:purecord/structs/guild.dart';
+import 'messagerow.dart';
 
 class ProfileView extends StatefulWidget {
   final String userId;
 
-  const ProfileView({required this.userId, super.key});
+  final Channel channel;
+  final Guild? guild;
+
+  const ProfileView({required this.userId, required this.channel, this.guild, super.key});
 
   @override
   _ProfileViewState createState() => _ProfileViewState();
@@ -96,8 +102,8 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                           ),
                         ),
                         Positioned(
-                          top: -10,
-                          left: -10,
+                          top: -5,
+                          left: -5,
                           child: CachedNetworkImage(
                             imageUrl: profile?.user.avatarDecorationURL.toString() ?? "",
                             fit: BoxFit.cover,
@@ -182,7 +188,7 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      profile?.user.nickname(apiData) ?? profile?.user.globalName ?? profile?.user.username ?? "",
+                      profile?.user.getDisplayName(apiData, widget.guild) ?? "unknown",
                       style: TextStyle(
                         fontSize: 24,
                         color: nameColor,
@@ -281,34 +287,59 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                         ],
                       ),
                     ],
-                    Padding(
-                      padding: const EdgeInsets.only(top: 10),
-                      child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                accentColor.withOpacity(0.5),
-                                accentColor.withOpacity(0.3),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Column(children: [
-                              const Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text("About me", style: TextStyle(fontWeight: FontWeight.bold))
+                    if ((profile?.userProfile.bio ?? "") != "")
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  accentColor.withOpacity(0.5),
+                                  accentColor.withOpacity(0.3),
+                                ],
                               ),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: MarkdownBody(data: profile?.userProfile.bio ?? "Unknown")
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Column(children: [
+                                const Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text("About me", style: TextStyle(fontWeight: FontWeight.bold))
+                                ),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: MarkdownBody(data: preprocessMarkdown(profile?.userProfile.bio ?? "Unknown"),
+                                  imageBuilder: (uri, title, alt) {
+                                    return CachedNetworkImage(
+                                      imageUrl: uri.toString(),
+                                      width: 32,
+                                      height: 32,
+                                      placeholder: (context, url) => const SizedBox(
+                                        width: 32,
+                                        height: 32,
+                                        child: CircularProgressIndicator(strokeWidth: 1.5),
+                                      ),
+                                      errorWidget: (context, url, error) => Icon(Icons.error, size: 32),
+                                    );
+                                  },
+                                  styleSheet: MarkdownStyleSheet(
+                                    blockquoteDecoration: BoxDecoration(
+                                      border: Border(
+                                        left: BorderSide(
+                                          color: Colors.grey.withAlpha(100),
+                                          width: 3.0,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  )
+                                )
+                                ]
                               )
-                              ]
                             )
-                          )
+                        )
                       )
-                    )
                   ],
                 ),
               )

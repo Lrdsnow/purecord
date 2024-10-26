@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 extension ColorExtension on Color {
   String toHex() {
     return '#'
-        '${(this.alpha.toRadixString(16).padLeft(2, '0')).toUpperCase()}'
-        '${(this.red.toRadixString(16).padLeft(2, '0')).toUpperCase()}'
-        '${(this.green.toRadixString(16).padLeft(2, '0')).toUpperCase()}'
-        '${(this.blue.toRadixString(16).padLeft(2, '0')).toUpperCase()}';
+        '${(alpha.toRadixString(16).padLeft(2, '0')).toUpperCase()}'
+        '${(red.toRadixString(16).padLeft(2, '0')).toUpperCase()}'
+        '${(green.toRadixString(16).padLeft(2, '0')).toUpperCase()}'
+        '${(blue.toRadixString(16).padLeft(2, '0')).toUpperCase()}';
   }
 
   static Color? fromHex(String hexString) {
@@ -22,6 +22,15 @@ extension ColorExtension on Color {
       (hexInt >> 16) & 0xFF,
       (hexInt >> 8) & 0xFF,
       hexInt & 0xFF,
+    );
+  }
+
+  static Color fromHexIntShort(int hexInt) {
+    return Color.fromRGBO(
+      (hexInt >> 16) & 0xFF,
+      (hexInt >> 8) & 0xFF,
+      hexInt & 0xFF,   
+      1.0,
     );
   }
 

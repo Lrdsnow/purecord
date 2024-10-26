@@ -71,6 +71,19 @@ extension EmojiImageURL on Emoji {
   }
 }
 
+extension StickerImageURL on StickerItem {
+  Uri? get imageURL {
+    return Uri.parse(
+      "https://media.discordapp.net/stickers/$id${(formatType == 1 || formatType == 0) ? ".png" : ".gif"}"
+    );
+  }
+  Uri? get lottieImageURL {
+    return Uri.parse(
+      "https://discord.com/stickers/$id.json"
+    );
+  }
+}
+
 extension BadgeIconURL on Badge {
   Uri? get iconURL {
     return Uri.parse("https://cdn.discordapp.com/badge-icons/$icon.png?format=gif");
@@ -91,5 +104,17 @@ extension UserProfileBannerURL on UserProfile {
 extension AttachmentPlaceholderURL on Attachment {
   Uri? get placeholderURL {
     return Uri.parse("${url.replaceAll("cdn.discordapp.com", "media.discordapp.net")}format=png");
+  }
+}
+
+extension FileTypeCheck on String {
+  bool isPhoto() {
+    final photoExtensions = ['jpg', 'jpeg', 'png', 'apng', 'gif', 'bmp', 'webp', 'heic'];
+    return photoExtensions.any((ext) => toLowerCase().endsWith('.$ext'));
+  }
+
+  bool isVideo() {
+    final videoExtensions = ['mp4', 'mov', 'avi', 'mkv', 'flv', 'wmv', 'webm', 'm4v'];
+    return videoExtensions.any((ext) => toLowerCase().endsWith('.$ext'));
   }
 }

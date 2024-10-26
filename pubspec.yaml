@@ -44,7 +44,11 @@ dependencies:
   path_provider: ^2.0.11
   provider: ^6.1.2
   flutter_markdown: ^0.7.4
+  markdown: ^7.1.1
   cached_network_image: ^3.4.1
+  lottie: ^2.2.0
+  widget_zoom: ^0.0.4
+  collection: ^1.18.0
 
 dev_dependencies:
   flutter_test:
