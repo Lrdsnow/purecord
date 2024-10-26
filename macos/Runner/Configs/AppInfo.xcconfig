@@ -8,7 +8,7 @@
 PRODUCT_NAME = purecord
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.purecord
+PRODUCT_BUNDLE_IDENTIFIER = uwu.lrdsnow.purecord
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2024 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2024 uwu.lrdsnow. All rights reserved.

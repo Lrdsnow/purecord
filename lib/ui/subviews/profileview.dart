@@ -320,7 +320,7 @@ class _ProfileViewState extends State<ProfileView> with SingleTickerProviderStat
                                         height: 32,
                                         child: CircularProgressIndicator(strokeWidth: 1.5),
                                       ),
-                                      errorWidget: (context, url, error) => Icon(Icons.error, size: 32),
+                                      errorWidget: (context, url, error) => const Icon(Icons.error, size: 32),
                                     );
                                   },
                                   styleSheet: MarkdownStyleSheet(

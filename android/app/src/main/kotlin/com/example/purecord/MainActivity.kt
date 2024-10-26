@@ -1,4 +1,4 @@
-package com.example.purecord
+package uwu.lrdsnow.purecord
 
 import io.flutter.embedding.android.FlutterActivity
 

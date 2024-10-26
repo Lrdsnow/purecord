@@ -319,8 +319,8 @@ class MessageNormalRow extends StatelessWidget {
                                   closeFullScreenImageOnDispose: true,
                                   zoomWidget: CachedNetworkImage(
                                       imageUrl: attachment.url,
-                                      placeholder: (context, url) => CircularProgressIndicator(),
-                                      errorWidget: (context, url, error) => Icon(Icons.error),
+                                      placeholder: (context, url) => const CircularProgressIndicator(),
+                                      errorWidget: (context, url, error) => const Icon(Icons.error),
                                       fit: BoxFit.cover, // Cover the entire space
                                     )
                                 ),
