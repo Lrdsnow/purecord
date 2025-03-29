@@ -2,6 +2,7 @@ import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../api/api.dart';
 import '../api/apidata.dart';
 import '../api/iconurls.dart';
@@ -21,10 +22,26 @@ class _MainViewState extends State<MainView> {
   final Api api = Api();
   Guild? selectedGuild;
 
+  late Color customAccent;
+  
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      final int? colorValue = prefs.getInt('custom_accent');
+      if (colorValue != null) {
+        customAccent = Color(colorValue);
+      } else {
+        customAccent = Theme.of(context).colorScheme.primaryContainer;
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     _startWebSocketConnection();
+    customAccent = const Color(0xFF6750A4);
+    _loadSettings();
   }
 
   Future<void> _startWebSocketConnection() async {
@@ -69,7 +86,7 @@ class _MainViewState extends State<MainView> {
                                   duration: const Duration(milliseconds: 400),
                                   curve: Curves.easeInOut,
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primaryContainer,
+                                    color: customAccent,
                                     borderRadius: selectedGuild == null
                                         ? BorderRadius.circular(15)
                                         : BorderRadius.circular(25),
@@ -114,7 +131,7 @@ class _MainViewState extends State<MainView> {
                                   curve: Curves.easeInOut,
                                   decoration: BoxDecoration(
                                     color: selectedGuild == guild
-                                        ? Theme.of(context).colorScheme.primaryContainer
+                                        ? customAccent
                                         : Colors.transparent,
                                     borderRadius: selectedGuild == guild
                                         ? BorderRadius.circular(15)

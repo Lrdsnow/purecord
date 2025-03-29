@@ -10,108 +10,275 @@ import 'package:purecord/extras.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:widget_zoom/widget_zoom.dart';
 import 'package:markdown/markdown.dart' as md;
 import 'package:collection/collection.dart';
 import 'profileview.dart';
 
-class MessageRow extends StatelessWidget {
+class MessageRow extends StatefulWidget {
   final Message message;
   final Message? prevMessage;
   final Message? nextMessage;
-
   final Channel channel;
   final Guild? guild;
+  final Function(Message message)? onReply;
 
-  const MessageRow({required this.message, required this.prevMessage, required this.nextMessage, required this.channel, this.guild, super.key});
+  const MessageRow({
+    required this.message,
+    required this.prevMessage,
+    required this.nextMessage,
+    required this.channel,
+    this.guild,
+    this.onReply,
+    super.key,
+  });
+
+  @override
+  State<MessageRow> createState() => _MessageRowState();
+}
+
+class _MessageRowState extends State<MessageRow> with SingleTickerProviderStateMixin {
+  double _dragOffset = 0.0;
+  bool _actionTriggered = false;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
+  final double _actionThreshold = 1.0 / 6.0; // 1/6th of the screen width
+  late Color customAccent;
+  
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      final int? colorValue = prefs.getInt('custom_accent');
+      if (colorValue != null) {
+        customAccent = Color(colorValue);
+      } else {
+        customAccent = Theme.of(context).colorScheme.primaryContainer;
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _animation = Tween<double>(begin: 0.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.elasticOut,
+      ),
+    );
+    _animation.addListener(() {
+      setState(() {
+        _dragOffset = _animation.value;
+      });
+    });
+    customAccent = const Color(0xFF6750A4);
+    _loadSettings();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  void _resetPosition() {
+    _animation = Tween<double>(
+      begin: _dragOffset,
+      end: 0.0,
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.elasticOut,
+      ),
+    );
+    _animationController.forward(from: 0.0);
+  }
+
+  void _checkThreshold(double screenWidth) {
+    if (!_actionTriggered && _dragOffset.abs() > screenWidth * _actionThreshold) {
+      _actionTriggered = true;
+      widget.onReply?.call(widget.message);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    void showProfileSheet(String userId) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: false,
-        builder: (BuildContext context) {
-          double screenHeight = MediaQuery.of(context).size.height;
-          double modalHeight = screenHeight - 80;
-
-          return SizedBox(
-            height: modalHeight,
-            child: ProfileView(userId: userId, channel: channel, guild: guild),
-          );
-        },
-      );
-    }
-
-    bool newDay = !areTimestampsOnSameDay(prevMessage?.timestamp ?? "2024-10-22T10:15:30Z", message.timestamp);
+    final double screenWidth = MediaQuery.of(context).size.width;
+    bool newDay = !areTimestampsOnSameDay(
+        widget.prevMessage?.timestamp ?? "2024-10-22T10:15:30Z", widget.message.timestamp);
 
     dynamic row;
 
-    if ({1, 2, 4, 5, 7, 8, 9, 10, 11}.contains(message.type)) {
-      row = MessageMemberRow(message: message, prevMessage: prevMessage, nextMessage: nextMessage, showProfileSheet: showProfileSheet, channel: channel, guild: guild);
+    if ({1, 2, 4, 5, 7, 8, 9, 10, 11}.contains(widget.message.type)) {
+      row = MessageMemberRow(
+        message: widget.message,
+        prevMessage: widget.prevMessage,
+        nextMessage: widget.nextMessage,
+        showProfileSheet: (userId) => _showProfileSheet(context, userId),
+        channel: widget.channel,
+        guild: widget.guild,
+      );
     } else {
-      row = MessageNormalRow(message: message, prevMessage: prevMessage, nextMessage: nextMessage, newDay: newDay, channel: channel, guild: guild, showProfileSheet: showProfileSheet);
+      row = MessageNormalRow(
+        message: widget.message,
+        prevMessage: widget.prevMessage,
+        nextMessage: widget.nextMessage,
+        newDay: newDay,
+        channel: widget.channel,
+        guild: widget.guild,
+        showProfileSheet: (userId) => _showProfileSheet(context, userId),
+        customAccent: customAccent,
+      );
     }
 
     return Consumer<ApiData>(
       builder: (context, apiData, child) {
-        return Container(
-        decoration: BoxDecoration(color: (message.mentions.map((user) => user.id).toList().contains(apiData.user?.id ?? "") ? Theme.of(context).colorScheme.primaryContainer : Colors.black).withOpacity(0.3)),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-          child: Column(children: [
-          if (newDay)
-            Padding(padding: const EdgeInsets.only(bottom: 2, top: 8),
-            child: Row(
+        return GestureDetector(
+          onHorizontalDragStart: (details) {
+            _actionTriggered = false;
+            _animationController.stop();
+          },
+          onHorizontalDragUpdate: (details) {
+            // Only allow dragging to the left
+            if (details.delta.dx < 0 || _dragOffset < 0) {
+              setState(() {
+                _dragOffset += details.delta.dx;
+                // Limit drag to prevent dragging too far
+                if (_dragOffset < -screenWidth / 2) {
+                  _dragOffset = -screenWidth / 2;
+                } else if (_dragOffset > 0) {
+                  _dragOffset = 0;
+                }
+              });
+              _checkThreshold(screenWidth);
+            }
+          },
+          onHorizontalDragEnd: (_) {
+            _resetPosition();
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: (widget.message.mentions.map((user) => user.id).toList().contains(apiData.user?.id ?? "")
+                  ? customAccent
+                  : Colors.black).withOpacity(0.1),
+            ),
+            child: Stack(
               children: [
-                const Expanded(
-                  child: Divider(
-                    height: 15,
-                    thickness: 1,
-                    indent: 0,
-                    endIndent: 10,
+                // Background action indicator
+                if (_dragOffset < 0)
+                  Positioned.fill(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          width: _dragOffset.abs(),
+                          color: customAccent,
+                          child: Center(
+                            child: Opacity(
+                              opacity: (_dragOffset.abs() / (screenWidth * _actionThreshold)).clamp(0.0, 1.0),
+                              child: const Icon(
+                                Icons.reply,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Text(
-                  formatTimestamp(message.timestamp),
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const Expanded(
-                  child: Divider(
-                    height: 15,
-                    thickness: 1,
-                    indent: 10,
-                    endIndent: 0,
+                // Message content
+                Transform.translate(
+                  offset: Offset(_dragOffset, 0),
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                    child: Column(
+                      children: [
+                        if (newDay)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 2, top: 8),
+                            child: Row(
+                              children: [
+                                const Expanded(
+                                  child: Divider(
+                                    height: 15,
+                                    thickness: 1,
+                                    indent: 0,
+                                    endIndent: 10,
+                                  ),
+                                ),
+                                Text(
+                                  formatTimestamp(widget.message.timestamp),
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                const Expanded(
+                                  child: Divider(
+                                    height: 15,
+                                    thickness: 1,
+                                    indent: 10,
+                                    endIndent: 0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        GestureDetector(
+                          onLongPress: () {
+                            // Your existing long press handler
+                          },
+                          child: row,
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ],
-            )),
-          GestureDetector(
-            onLongPress: () {
+            ),
+          ),
+        );
+      },
+    );
+  }
 
-            },
-            child: row
-          )
-        ]))
-      );
-    });
-  } 
+  void _showProfileSheet(BuildContext context, String userId) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: false,
+      builder: (BuildContext context) {
+        double screenHeight = MediaQuery.of(context).size.height;
+        double modalHeight = screenHeight - 80;
+
+        return SizedBox(
+          height: modalHeight,
+          child: ProfileView(userId: userId, channel: widget.channel, guild: widget.guild),
+        );
+      },
+    );
+  }
 }
 
+// Rest of your code remains the same
 class MessageNormalRow extends StatelessWidget {
   final Message message;
   final Message? prevMessage;
   final Message? nextMessage;
   final bool newDay;
 
+  final Color customAccent;
+
   final Channel channel;
   final Guild? guild;
 
   final Function(String userId) showProfileSheet;
 
-  const MessageNormalRow({required this.message, required this.prevMessage, required this.nextMessage, required this.newDay, required this.showProfileSheet, required this.channel, this.guild, super.key});
+  const MessageNormalRow({required this.message, required this.prevMessage, required this.nextMessage, required this.newDay, required this.showProfileSheet, required this.channel, this.guild, required this.customAccent, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -269,7 +436,7 @@ class MessageNormalRow extends StatelessWidget {
                         inlineSyntaxes: [UserPingInlineSyntax(channel: channel, guild: guild), RolePingInlineSyntax(channel: channel, guild: guild)],
                         builders: {
                           'blockquote': IgnoreBlockquote(),
-                          'ping': PingBuilder(showProfileSheet: showProfileSheet, guild: guild),
+                          'ping': PingBuilder(showProfileSheet: showProfileSheet, guild: guild, customAccent: customAccent),
                         },
                         styleSheet: MarkdownStyleSheet(
                           blockquoteDecoration: BoxDecoration(
@@ -282,6 +449,7 @@ class MessageNormalRow extends StatelessWidget {
                           ),
                         ),
                       ),
+                    // Rest of your code for stickers, attachments, etc.
                     if (message.stickerItems?.isNotEmpty ?? false)
                       for (final sticker in message.stickerItems!)
                         if (sticker.formatType == 3)
@@ -446,10 +614,11 @@ class UserPingInlineSyntax extends md.InlineSyntax {
 
 class PingBuilder extends MarkdownElementBuilder {
 
-  PingBuilder({required this.showProfileSheet, this.guild});
+  PingBuilder({required this.showProfileSheet, this.guild, required this.customAccent});
 
   final Function(String userId) showProfileSheet;
   final Guild? guild;
+  final Color customAccent;
 
   @override
   bool isBlockElement() => false;
@@ -462,6 +631,7 @@ class PingBuilder extends MarkdownElementBuilder {
           return RolePingWidget(
             roleId: element.attributes['roleId']!,
             roleName: element.attributes['roleName'],
+            customAccent: customAccent,
           );
         } else {
           return UserPingWidget(
@@ -470,6 +640,7 @@ class PingBuilder extends MarkdownElementBuilder {
             apiData: apiData,
             showProfileSheet: showProfileSheet,
             guild: guild,
+            customAccent: customAccent,
           );
         }
       },
@@ -480,10 +651,12 @@ class PingBuilder extends MarkdownElementBuilder {
 class RolePingWidget extends StatelessWidget {
   final String roleId;
   final String? roleName;
+  final Color customAccent;
 
   const RolePingWidget({
     required this.roleId,
     this.roleName,
+    required this.customAccent,
     super.key
   });
 
@@ -492,12 +665,12 @@ class RolePingWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+        color: customAccent.withOpacity(0.3),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         '@${roleName ?? roleId}', // Use the cached or fetched username
-        style: TextStyle(color: Theme.of(context).colorScheme.primaryContainer),
+        style: TextStyle(color: customAccent),
       ),
     );
   }
@@ -508,6 +681,7 @@ class UserPingWidget extends StatefulWidget {
   final String? username;
   final ApiData apiData;
   final Guild? guild;
+  final Color customAccent;
 
   final Function(String userId) showProfileSheet;
 
@@ -517,6 +691,7 @@ class UserPingWidget extends StatefulWidget {
     required this.apiData,
     required this.showProfileSheet,
     this.guild,
+    required this.customAccent,
     super.key,
   });
 
@@ -566,12 +741,12 @@ class _UserPingWidgetState extends State<UserPingWidget> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+          color: widget.customAccent.withOpacity(0.3),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Text(
           '@${_displayedUsername ?? widget.userId}', // Use the cached or fetched username
-          style: TextStyle(color: Theme.of(context).colorScheme.primaryContainer),
+          style: TextStyle(color: widget.customAccent),
         ),
       )
     );

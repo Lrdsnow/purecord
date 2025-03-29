@@ -6,6 +6,7 @@ import 'package:purecord/structs/guild.dart';
 import 'package:purecord/api/apidata.dart';
 import 'package:purecord/api/api.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'subviews/messagerow.dart';
 
 class ChatView extends StatefulWidget {
@@ -23,9 +24,26 @@ class _ChatViewState extends State<ChatView> with SingleTickerProviderStateMixin
   final ScrollController _scrollController = ScrollController();
   bool _isSendButtonVisible = false;
 
+  late Color customAccent;
+  
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      final int? colorValue = prefs.getInt('custom_accent');
+      if (colorValue != null) {
+        customAccent = Color(colorValue);
+      } else {
+        customAccent = Theme.of(context).colorScheme.primaryContainer;
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    customAccent = const Color(0xFF6750A4);
+    _loadSettings();
+
     _controller.addListener(() {
       setState(() {
         _isSendButtonVisible = _controller.text.isNotEmpty;
@@ -141,6 +159,7 @@ class _ChatViewState extends State<ChatView> with SingleTickerProviderStateMixin
                       nextMessage: apiData.currentMessages.getValueAtIndex(index + 1),
                       channel: widget.channel,
                       guild: widget.guild,
+                      onReply:(message) => { print("REPLY!!!") },
                     );
                   },
                 ),
@@ -155,7 +174,7 @@ class _ChatViewState extends State<ChatView> with SingleTickerProviderStateMixin
                         width: 50,
                         height: 50,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+                          color: customAccent.withOpacity(0.3),
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.add, color: Colors.white),
@@ -164,7 +183,7 @@ class _ChatViewState extends State<ChatView> with SingleTickerProviderStateMixin
                       Expanded(
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+                            color: customAccent.withOpacity(0.3),
                             borderRadius: BorderRadius.circular(25),
                           ),
                           child: Padding(
@@ -193,7 +212,7 @@ class _ChatViewState extends State<ChatView> with SingleTickerProviderStateMixin
                             onTap: _sendMessage,
                             child: Container(
                               decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+                                color: customAccent.withOpacity(0.5),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(Icons.send, color: Colors.white),

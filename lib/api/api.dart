@@ -287,6 +287,39 @@ class Api {
     }
   }
 
+  static Future<String?> remoteAuthStage1(String fingerprint) async {
+    final result = await authedPost(
+      url: Uri.parse("https://discord.com/api/v10/users/@me/remote-auth"),
+      body: {
+        "fingerprint": fingerprint
+      },
+    );
+    if (result is Map && result.containsKey('handshake_token')) {
+      return result['handshake_token'];
+    } else {
+      return null;
+    }
+  }
+
+  static Future remoteAuthStage2(String handshake_token) async {
+    final _ = await authedPost(
+      url: Uri.parse("https://discord.com/api/v10/users/@me/remote-auth/finish"),
+      body: {
+        "handshake_token": handshake_token,
+        "temporary_token": false
+      },
+    );
+  }
+
+  static Future remoteAuthCancel(String handshake_token) async {
+    final _ = await authedPost(
+      url: Uri.parse("https://discord.com/api/v10/users/@me/remote-auth/cancel"),
+      body: {
+        "handshake_token": handshake_token
+      },
+    );
+  }
+
   Future<void> startWebSocket(ApiData apiData, {bool compress = false}) async {
     final url = Uri.parse('wss://gateway.discord.gg/?v=10&encoding=json${compress ? "&compress=zlib-stream" : ""}');
     final webSocket = await WebSocket.connect(url.toString(), compression: compress ? CompressionOptions.compressionDefault : CompressionOptions.compressionOff);
