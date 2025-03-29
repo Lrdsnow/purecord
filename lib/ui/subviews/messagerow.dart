@@ -251,13 +251,24 @@ class _MessageRowState extends State<MessageRow> with SingleTickerProviderStateM
       context: context,
       isScrollControlled: true,
       useSafeArea: false,
+      enableDrag: true,
       builder: (BuildContext context) {
         double screenHeight = MediaQuery.of(context).size.height;
         double modalHeight = screenHeight - 80;
 
-        return SizedBox(
-          height: modalHeight,
-          child: ProfileView(userId: userId, channel: widget.channel, guild: widget.guild),
+        return NotificationListener<OverscrollIndicatorNotification>(
+          onNotification: (OverscrollIndicatorNotification notification) {
+            notification.disallowIndicator();
+            return true;
+          },
+          child: SizedBox(
+            height: modalHeight,
+            child: ProfileView(
+              userId: userId, 
+              channel: widget.channel, 
+              guild: widget.guild,
+            ),
+          ),
         );
       },
     );
